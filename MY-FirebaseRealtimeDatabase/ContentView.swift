@@ -46,31 +46,18 @@ struct ContentView: View {
       Spacer()
     }
     .padding()
-    .onAppear(perform: populateFruit)
-    .refreshable {
-      Task {
-        populateFruit()
-      }
-    }
+    .onAppear(perform: fetchFruit)
   }
 }
 
 extension ContentView {
   private func addFruit() {
     ref.child(fruitCollection).childByAutoId().setValue(fruitName)
-    populateFruit()
+    fetchFruit()
   }
   
-  private func populateFruit() {
-    DispatchQueue.main.async {
-      withAnimation(.easeInOut) {
-        allFruit = fetchFruit()
-      }
-    }
-  }
-  
-  private func fetchFruit() -> [String] {
-    var fetchedFruit: [String] = []
+  private func fetchFruit() {
+    allFruit = []
     
     ref.child(fruitCollection).getData { error, snapshot in
       if let error {
@@ -78,15 +65,13 @@ extension ContentView {
       }
       
       if let snapshot {
-        fetchedFruit = snapshot.children.compactMap {
-          let fruitSNap = $0 as! DataSnapshot
-          let fruitName = fruitSNap.value as! String
-          return fruitName
+        for fruit in snapshot.children {
+          let fruitSnap = fruit as! DataSnapshot
+          let fruitName = fruitSnap.value as! String
+          allFruit.append(fruitName)
         }
       }
     }
-    
-    return fetchedFruit
   }
   
   private func deleteFruit(atOffsets: IndexSet) {

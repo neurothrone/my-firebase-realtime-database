@@ -6,7 +6,6 @@
 //
 
 import FirebaseCore
-import Firebase
 import SwiftUI
 
 class AppDelegate: NSObject, UIApplicationDelegate {
